@@ -6,7 +6,17 @@ import (
 )
 
 
-func health(w http.ResponseWriter, req *http.Request) {
+func getHealth(w http.ResponseWriter, req *http.Request) {
+    status := struct {
+		Status string
+	}{
+		Status: "ok",
+	}
+
+	json.NewEncoder(w).Encode(status)
+}
+
+func getStatus(w http.ResponseWriter, req *http.Request) {
     status := struct {
 		Status string
 	}{
@@ -17,7 +27,8 @@ func health(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleRouters() {
-    http.HandleFunc("/health", health)
+    http.HandleFunc("GET /health", JsonContentTypeMiddleware(getHealth))
+    http.HandleFunc("GET /status", JsonContentTypeMiddleware(getStatus))
 
 
     http.ListenAndServe(":8090", nil)
