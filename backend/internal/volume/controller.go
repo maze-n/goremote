@@ -1,7 +1,7 @@
 package volume
 
 type Controller interface {
-	Get() (int, error)
+	Get() (level int, muted bool,err error)
 	Set(level int) error
-	ToggleMute() error
+	SetMuted(muted bool) error
 }
