@@ -2,16 +2,17 @@ package api
 
 import (
 	"encoding/json"
+	"goremote/internal/media"
 	"goremote/internal/volume"
 	"log"
 	"net/http"
 )
 
-var volumeController volume.Controller = volume.NewMacOSController()
-
+var mediaController media.Controller = media.NewMacOSMediaController("./bin/media-helper")
+var volumeController volume.Controller = volume.NewMacOSVolumeController()
 
 func getHealth(w http.ResponseWriter, req *http.Request) {
-    status := struct {
+	status := struct {
 		Status string
 	}{
 		Status: "ok",
@@ -21,43 +22,76 @@ func getHealth(w http.ResponseWriter, req *http.Request) {
 }
 
 func getStatus(w http.ResponseWriter, req *http.Request) {
-    status := struct {
-        Volume struct {
-            Level int  `json:"level"`
-            Muted bool `json:"muted"`
-        } `json:"volume"`
-    }{}
+	status := struct {
+		Volume struct {
+			Level int  `json:"level"`
+			Muted bool `json:"muted"`
+		} `json:"volume"`
+	}{}
 
 	volume, muted, err := volumeController.Get()
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Volume
-    status.Volume.Level = volume
-    status.Volume.Muted = muted
+	status.Volume.Level = volume
+	status.Volume.Muted = muted
 
-    json.NewEncoder(w).Encode(status)
+	json.NewEncoder(w).Encode(status)
+}
+
+func togglePlayPause(w http.ResponseWriter, req *http.Request) {
+	if err := mediaController.PlayPause(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{Status: "ok"})
+}
+
+func mediaNext(w http.ResponseWriter, req *http.Request) {
+	if err := mediaController.Next(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{Status: "ok"})
+}
+
+func mediaPrevious(w http.ResponseWriter, req *http.Request) {
+	if err := mediaController.Previous(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{Status: "ok"})
 }
 
 func getVolume(w http.ResponseWriter, req *http.Request) {
-    status := struct {
-        Volume int `json:"volume"`
-        Muted bool `json:"muted"`
-    }{}
+	status := struct {
+		Volume int  `json:"volume"`
+		Muted  bool `json:"muted"`
+	}{}
 
 	volume, muted, err := volumeController.Get()
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Volume
-    status.Volume = volume
-    status.Muted = muted
+	status.Volume = volume
+	status.Muted = muted
 
-    json.NewEncoder(w).Encode(status)
+	json.NewEncoder(w).Encode(status)
 }
 
 func setVolume(w http.ResponseWriter, r *http.Request) {
@@ -84,37 +118,46 @@ func setVolume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    json.NewEncoder(w).Encode(struct {Status string `json:"status"`}{Status: "ok"})
+	json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{Status: "ok"})
 }
 
 func toggleMute(w http.ResponseWriter, r *http.Request) {
 	_, muted, err := volumeController.Get()
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	err = volumeController.SetMuted(!muted)
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	json.NewEncoder(w).Encode(struct {Status string `json:"status"`}{Status: "ok"})
+	json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{Status: "ok"})
 }
 
 func HandleRouters() {
-    http.HandleFunc("GET /health", JsonContentTypeMiddleware(getHealth))
-    http.HandleFunc("GET /status", JsonContentTypeMiddleware(getStatus))
-    
+	http.HandleFunc("GET /health", JsonContentTypeMiddleware(getHealth))
+	http.HandleFunc("GET /status", JsonContentTypeMiddleware(getStatus))
+
+	// Media
+	http.HandleFunc("POST /media/play-pause", JsonContentTypeMiddleware(togglePlayPause))
+	http.HandleFunc("POST /media/next", JsonContentTypeMiddleware(mediaNext))
+	http.HandleFunc("POST /media/previous", JsonContentTypeMiddleware(mediaPrevious))
+
 	// Volume
 	http.HandleFunc("GET /volume", JsonContentTypeMiddleware(getVolume))
 	http.HandleFunc("PUT /volume", JsonContentTypeMiddleware(setVolume))
 	http.HandleFunc("POST /volume/mute", JsonContentTypeMiddleware(toggleMute))
 
-    log.Println("GoRemote server listening on :8090")
+	log.Println("GoRemote server listening on :8090")
 
-    if err := http.ListenAndServe(":8090", nil); err != nil {
-        log.Fatal(err)
-    }
+	if err := http.ListenAndServe(":8090", nil); err != nil {
+		log.Fatal(err)
+	}
 }
