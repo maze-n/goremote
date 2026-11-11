@@ -40,17 +40,25 @@ func main() {
 	)
 	defer stop()
 
+	serverErrors := make(chan error, 1)
+
 	go func() {
 		log.Println("GoRemote server listening on :8090")
 
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Printf("HTTP server error: %v", err)
+		err := server.ListenAndServe()
+
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErrors <- err
 		}
 	}()
 
-	<-ctx.Done()
+	select {
+	case <-ctx.Done():
+		log.Println("Shutdown signal received")
 
-	log.Println("Shutting down GoRemote...")
+	case err := <-serverErrors:
+		log.Printf("HTTP server failed: %v", err)
+	}
 
 	shutdownCtx, cancel := context.WithTimeout(
 		context.Background(),
