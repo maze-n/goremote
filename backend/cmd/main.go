@@ -8,7 +8,7 @@ import (
 
 func main() {
 	tokenStore, err := auth.NewTokenStore(
-		"goremote/internal/api/auth/token.hash",
+		"~/Library/Application Support/MacRemote/auth/token.hash",
 	)
 	if err != nil {
 		log.Fatal("err")
