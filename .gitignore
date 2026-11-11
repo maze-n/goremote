@@ -1,2 +1,5 @@
 */bin/
 *.hash
+.build/
+.DS_Store
+build/*
