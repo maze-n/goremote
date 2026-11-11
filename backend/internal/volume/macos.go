@@ -73,10 +73,27 @@ func (m *MacOSController) Get() (int, bool, error) {
 	return level, muted, nil
 }
 
-func (m *MacOSController) Set(val int) error {
-	return nil
+func (m *MacOSController) Set(level int) error {
+	if level < 0 || level > 100 {
+		return fmt.Errorf("volume must be between 0 and 100")
+	}
+
+	script := fmt.Sprintf(
+		"set volume output volume %d",
+		level,
+	)
+
+	_, err := runAppleScript(script)
+
+	return err
 }
 
-func (m *MacOSController) SetMuted(val bool) error {
-	return nil
+func (m *MacOSController) SetMuted(muted bool) error {
+	script := fmt.Sprintf(
+		"set volume output muted %t",
+		muted,
+	)
+
+	_, err := runAppleScript(script)
+	return err
 }
