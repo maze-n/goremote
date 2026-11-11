@@ -5,7 +5,6 @@ import (
 	"goremote/internal/auth"
 	"goremote/internal/media"
 	"goremote/internal/volume"
-	"log"
 	"net/http"
 )
 
@@ -142,31 +141,29 @@ func toggleMute(w http.ResponseWriter, r *http.Request) {
 	}{Status: "ok"})
 }
 
-func HandleRouters(tokenStore *auth.TokenStore, pairingManager *auth.MemoryPairingManager) {
+func HandleRoutes(tokenStore *auth.TokenStore, pairingManager *auth.MemoryPairingManager) http.Handler {
+	mux := http.NewServeMux()
+
 	requireAuth := auth.RequireAuth(tokenStore)
 	pairHandler := NewPairHandler(tokenStore, pairingManager)
 
-	http.HandleFunc("GET /health", JsonContentTypeMiddleware(getHealth))
+	mux.HandleFunc("GET /health", JsonContentTypeMiddleware(getHealth))
 
 	// Auth
-	http.HandleFunc("POST /pair", JsonContentTypeMiddleware(pairHandler))
+	mux.HandleFunc("POST /pair", JsonContentTypeMiddleware(pairHandler))
 
 	// Status
-	http.Handle("GET /status", requireAuth(JsonContentTypeMiddleware(getStatus)))
+	mux.Handle("GET /status", requireAuth(JsonContentTypeMiddleware(getStatus)))
 
 	// Media
-	http.Handle("POST /media/play-pause", requireAuth((JsonContentTypeMiddleware(togglePlayPause))))
-	http.Handle("POST /media/next", requireAuth((JsonContentTypeMiddleware(mediaNext))))
-	http.Handle("POST /media/previous", requireAuth((JsonContentTypeMiddleware(mediaPrevious))))
+	mux.Handle("POST /media/play-pause", requireAuth((JsonContentTypeMiddleware(togglePlayPause))))
+	mux.Handle("POST /media/next", requireAuth((JsonContentTypeMiddleware(mediaNext))))
+	mux.Handle("POST /media/previous", requireAuth((JsonContentTypeMiddleware(mediaPrevious))))
 
 	// Volume
-	http.Handle("GET /volume", requireAuth(JsonContentTypeMiddleware(getVolume)))
-	http.Handle("PUT /volume", requireAuth(JsonContentTypeMiddleware(setVolume)))
-	http.Handle("POST /volume/mute", requireAuth(JsonContentTypeMiddleware(toggleMute)))
+	mux.Handle("GET /volume", requireAuth(JsonContentTypeMiddleware(getVolume)))
+	mux.Handle("PUT /volume", requireAuth(JsonContentTypeMiddleware(setVolume)))
+	mux.Handle("POST /volume/mute", requireAuth(JsonContentTypeMiddleware(toggleMute)))
 
-	log.Println("GoRemote server listening on :8090")
-
-	if err := http.ListenAndServe(":8090", nil); err != nil {
-		log.Fatal(err)
-	}
+	return mux
 }

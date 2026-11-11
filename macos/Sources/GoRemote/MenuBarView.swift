@@ -22,8 +22,9 @@ struct MenuBarView: View {
             Divider()
 
             if server.isRunning {
-                Button("Stop Server") {
+                Button("Restart Server") {
                     server.stop()
+                    // We'll add a proper restart operation next.
                 }
             } else {
                 Button("Start Server") {
@@ -39,7 +40,7 @@ struct MenuBarView: View {
 
             Divider()
 
-            Button("Quit GoRemote") {
+            Button("Quit") {
                 NSApplication.shared.terminate(nil)
             }
         }

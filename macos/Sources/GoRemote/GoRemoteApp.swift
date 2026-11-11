@@ -2,16 +2,17 @@
 import SwiftUI
 
 @main
-struct GoRemoteApp: App {
-    @StateObject private var server = ServerManager()
+struct MacRemoteApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self)
+    private var appDelegate
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarView(server: server)
+            MenuBarView(server: appDelegate.server)
         } label: {
             Label(
                 "GoRemote",
-                systemImage: server.isRunning
+                systemImage: appDelegate.server.isRunning
                     ? "dot.radiowaves.left.and.right"
                     : "wifi.slash"
             )
