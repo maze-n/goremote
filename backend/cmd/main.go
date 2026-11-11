@@ -3,13 +3,16 @@ package main
 import (
 	"goremote/internal/api"
 	"goremote/internal/auth"
+	"goremote/internal/platform/macos"
 	"log"
 )
 
 func main() {
-	tokenStore, err := auth.NewTokenStore(
-		"~/Library/Application Support/MacRemote/auth/token.hash",
-	)
+	tokenPath, err := macos.AuthTokenPath()
+	if err != nil {
+		log.Fatal(err)
+	}
+	tokenStore, err := auth.NewTokenStore(tokenPath)
 	if err != nil {
 		log.Fatal("err")
 	}
