@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"goremote/internal/auth"
 	"goremote/internal/media"
 	"goremote/internal/volume"
 	"log"
@@ -141,19 +142,27 @@ func toggleMute(w http.ResponseWriter, r *http.Request) {
 	}{Status: "ok"})
 }
 
-func HandleRouters() {
+func HandleRouters(tokenStore *auth.TokenStore, pairingManager *auth.MemoryPairingManager) {
+	requireAuth := auth.RequireAuth(tokenStore)
+	pairHandler := NewPairHandler(tokenStore, pairingManager)
+
 	http.HandleFunc("GET /health", JsonContentTypeMiddleware(getHealth))
-	http.HandleFunc("GET /status", JsonContentTypeMiddleware(getStatus))
+
+	// Auth
+	http.HandleFunc("POST /pair", JsonContentTypeMiddleware(pairHandler))
+
+	// Status
+	http.Handle("GET /status", requireAuth(JsonContentTypeMiddleware(getStatus)))
 
 	// Media
-	http.HandleFunc("POST /media/play-pause", JsonContentTypeMiddleware(togglePlayPause))
-	http.HandleFunc("POST /media/next", JsonContentTypeMiddleware(mediaNext))
-	http.HandleFunc("POST /media/previous", JsonContentTypeMiddleware(mediaPrevious))
+	http.Handle("POST /media/play-pause", requireAuth((JsonContentTypeMiddleware(togglePlayPause))))
+	http.Handle("POST /media/next", requireAuth((JsonContentTypeMiddleware(mediaNext))))
+	http.Handle("POST /media/previous", requireAuth((JsonContentTypeMiddleware(mediaPrevious))))
 
 	// Volume
-	http.HandleFunc("GET /volume", JsonContentTypeMiddleware(getVolume))
-	http.HandleFunc("PUT /volume", JsonContentTypeMiddleware(setVolume))
-	http.HandleFunc("POST /volume/mute", JsonContentTypeMiddleware(toggleMute))
+	http.Handle("GET /volume", requireAuth(JsonContentTypeMiddleware(getVolume)))
+	http.Handle("PUT /volume", requireAuth(JsonContentTypeMiddleware(setVolume)))
+	http.Handle("POST /volume/mute", requireAuth(JsonContentTypeMiddleware(toggleMute)))
 
 	log.Println("GoRemote server listening on :8090")
 
