@@ -11,7 +11,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.goremote.app.data.auth.PairedServer
 import com.goremote.app.data.auth.PairedServerStore
 import com.goremote.app.data.auth.TokenStore
@@ -118,38 +120,41 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(pairedServer, retryCount) {
                 val savedServer = pairedServer
                     ?: return@LaunchedEffect
-
-                isConnecting = activeServer == null
-                connectionError = null
-
-                while (true) {
-                    try {
-                        val resolvedServer =
-                            connectionManager.reconnect(
+            
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                
+                    while (true) {
+                        isConnecting = activeServer == null
+                        connectionError = null
+            
+                        try {
+                            val resolvedServer = connectionManager.reconnect(
                                 activeServer ?: savedServer
                             )
-
-                        if (resolvedServer != null) {
-                            activeServer = resolvedServer
-                            pairedServer = resolvedServer
-                            connectionError = null
-                            isConnecting = false
-                        } else {
+            
+                            if (resolvedServer != null) {
+                                activeServer = resolvedServer
+                                pairedServer = resolvedServer
+                                connectionError = null
+                                isConnecting = false
+                            } else {
+                                activeServer = null
+                                connectionError =
+                                    "Mac is unavailable. Retrying automatically."
+                                isConnecting = false
+                            }
+            
+                        } catch (e: Exception) {
                             activeServer = null
                             connectionError =
-                                "Mac is unavailable. Retrying automatically."
+                                e.message ?: "Could not connect to Mac"
                             isConnecting = false
                         }
-                    } catch (e: Exception) {
-                        activeServer = null
-                        connectionError =
-                            e.message ?: "Could not connect to Mac"
-                        isConnecting = false
+            
+                        delay(RETRY_INTERVAL_MS)
+            
+                        isConnecting = activeServer == null
                     }
-
-                    delay(RETRY_INTERVAL_MS)
-
-                    isConnecting = activeServer == null
                 }
             }
 
