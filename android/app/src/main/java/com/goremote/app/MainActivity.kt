@@ -1,36 +1,30 @@
+
 package com.goremote.app
 
 import android.os.Bundle
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.goremote.app.data.discovery.MacDiscoveryManager
+import com.goremote.app.data.remote.PairingClient
+import com.goremote.app.data.remote.PairingResult
 import com.goremote.app.domain.DiscoveredMac
+import com.goremote.app.ui.screens.PinEntryScreen
+import com.goremote.app.ui.screens.ServerSelectionScreen
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var discoveryManager: MacDiscoveryManager
+
+    private val pairingClient = PairingClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,13 +35,90 @@ class MainActivity : ComponentActivity() {
             val discoveredMacs by
                 discoveryManager.discoveredMacs.collectAsState()
 
-            GoRemoteApp(
-                discoveredMacs = discoveredMacs,
-                onRefresh = {
-                    discoveryManager.stopDiscovery()
-                    discoveryManager.startDiscovery()
+            var selectedMac by remember {
+                mutableStateOf<DiscoveredMac?>(null)
+            }
+
+            var pairingResult by remember {
+                mutableStateOf<PairingResult?>(null)
+            }
+
+            var isPairing by remember {
+                mutableStateOf(false)
+            }
+
+            var pairingError by remember {
+                mutableStateOf<String?>(null)
+            }
+
+            MaterialTheme(
+                colorScheme = lightColorScheme()
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    when {
+                        pairingResult != null -> {
+                            PairingSuccessScreen(
+                                macName = selectedMac?.name ?: "Mac"
+                            )
+                        }
+
+                        selectedMac != null -> {
+                            val mac = selectedMac!!
+
+                            PinEntryScreen(
+                                macName = mac.name,
+                                macAddress = mac.baseUrl,
+                                isPairing = isPairing,
+                                errorMessage = pairingError,
+                                onBack = {
+                                    selectedMac = null
+                                    pairingError = null
+                                },
+                                onPair = { code ->
+                                    lifecycleScope.launch {
+                                        isPairing = true
+                                        pairingError = null
+
+                                        try {
+                                            val deviceName =
+                                                "${Build.MANUFACTURER} ${Build.MODEL}"
+                                                    .trim()
+
+                                            pairingResult =
+                                                pairingClient.pair(
+                                                    baseUrl = mac.baseUrl,
+                                                    code = code,
+                                                    deviceName = deviceName
+                                                )
+                                        } catch (e: Exception) {
+                                            pairingError =
+                                                e.message ?: "Pairing failed"
+                                        } finally {
+                                            isPairing = false
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        else -> {
+                            ServerSelectionScreen(
+                                discoveredMacs = discoveredMacs,
+                                onRefresh = {
+                                    discoveryManager.stopDiscovery()
+                                    discoveryManager.startDiscovery()
+                                },
+                                onSelectMac = {
+                                    selectedMac = it
+                                }
+                            )
+                        }
+                    }
                 }
-            )
+            }
         }
     }
 
@@ -69,106 +140,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun GoRemoteApp(
-    discoveredMacs: List<DiscoveredMac>,
-    onRefresh: () -> Unit
-) {
-    MaterialTheme(colorScheme = lightColorScheme()) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-            ) {
-                Text(
-                    text = "GoRemote",
-                    style = MaterialTheme.typography.headlineLarge
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Control your Mac remotely",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Text(
-                    text = "Available Macs",
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = onRefresh,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Scan for Macs")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (discoveredMacs.isEmpty()) {
-                    Text(
-                        text = "Looking for GoRemote servers on your network...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(
-                            items = discoveredMacs,
-                            key = { it.serviceName }
-                        ) { mac ->
-                            MacCard(mac = mac)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MacCard(mac: DiscoveredMac) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+private fun PairingSuccessScreen(macName: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                text = mac.name,
-                style = MaterialTheme.typography.titleMedium
-            )
+        Text(
+            text = "Paired successfully",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
 
-            Spacer(modifier = Modifier.height(6.dp))
+        Spacer(Modifier.height(12.dp))
 
-            Text(
-                text = "${mac.host}:${mac.port}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "GoRemote server discovered",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+        Text(
+            text = "Your Android device is now paired with $macName.",
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
