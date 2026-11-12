@@ -15,21 +15,26 @@ import androidx.lifecycle.lifecycleScope
 import com.goremote.app.data.discovery.MacDiscoveryManager
 import com.goremote.app.data.remote.PairingClient
 import com.goremote.app.data.remote.PairingResult
+import com.goremote.app.data.auth.TokenStore
 import com.goremote.app.domain.DiscoveredMac
 import com.goremote.app.ui.screens.PinEntryScreen
 import com.goremote.app.ui.screens.ServerSelectionScreen
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var discoveryManager: MacDiscoveryManager
-
+    private lateinit var tokenStore: TokenStore
+    
     private val pairingClient = PairingClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         discoveryManager = MacDiscoveryManager(applicationContext)
+        tokenStore = TokenStore(applicationContext)
 
         setContent {
             val discoveredMacs by
@@ -39,8 +44,8 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf<DiscoveredMac?>(null)
             }
 
-            var pairingResult by remember {
-                mutableStateOf<PairingResult?>(null)
+            var pairedMacName by remember {
+                mutableStateOf<String?>(null)
             }
 
             var isPairing by remember {
@@ -59,9 +64,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     when {
-                        pairingResult != null -> {
+                        pairedMacName != null -> {
                             PairingSuccessScreen(
-                                macName = selectedMac?.name ?: "Mac"
+                                macName = pairedMacName!!
                             )
                         }
 
@@ -87,12 +92,18 @@ class MainActivity : ComponentActivity() {
                                                 "${Build.MANUFACTURER} ${Build.MODEL}"
                                                     .trim()
 
-                                            pairingResult =
-                                                pairingClient.pair(
-                                                    baseUrl = mac.baseUrl,
-                                                    code = code,
-                                                    deviceName = deviceName
-                                                )
+                                            val result = pairingClient.pair(
+                                                baseUrl = mac.baseUrl,
+                                                code = code,
+                                                deviceName = deviceName
+                                            )
+
+                                            // Encrypt and persist the token off the main thread.
+                                            withContext(Dispatchers.IO) {
+                                                tokenStore.save(result.accessToken)
+                                            }
+
+                                            pairedMacName = mac.name
                                         } catch (e: Exception) {
                                             pairingError =
                                                 e.message ?: "Pairing failed"
