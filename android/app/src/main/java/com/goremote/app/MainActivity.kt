@@ -43,7 +43,10 @@ class MainActivity : ComponentActivity() {
 
             GoRemoteApp(
                 discoveredMacs = discoveredMacs,
-                onRefresh = { discoveryManager.startDiscovery() }
+                onRefresh = {
+                    discoveryManager.stopDiscovery()
+                    discoveryManager.startDiscovery()
+                }
             )
         }
     }
