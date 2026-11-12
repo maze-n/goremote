@@ -16,6 +16,11 @@ const (
 )
 
 func Start(port int) (*zeroconf.Server, error) {
+	deviceID, err := loadOrCreateDeviceId()
+	if err != nil {
+		return nil, fmt.Errorf("load device identity: %w", err)
+	}
+
 	// Explicitly select the Mac's Wi-Fi interface.
 	iface, err := net.InterfaceByName("en0")
 	if err != nil {
@@ -59,6 +64,11 @@ func Start(port int) (*zeroconf.Server, error) {
 		hostname = strings.TrimSuffix(hostname, ".local")
 	}
 
+	txtRecords := []string{
+		"version=0.1.0",
+		"device_id=" + deviceID,
+	}
+
 	server, err := zeroconf.RegisterProxy(
 		serviceName,
 		serviceType,
@@ -66,7 +76,7 @@ func Start(port int) (*zeroconf.Server, error) {
 		port,
 		hostname,
 		ips,
-		[]string{"version=0.1.0"},
+		txtRecords,
 		[]net.Interface{*iface},
 	)
 	if err != nil {
