@@ -1,4 +1,3 @@
-
 package com.goremote.app.data.discovery
 
 import android.content.Context
@@ -17,6 +16,7 @@ class MacDiscoveryManager(context: Context) {
     companion object {
         private const val TAG = "MacDiscovery"
         private const val SERVICE_TYPE = "_goremote._tcp."
+        private const val DEVICE_ID_ATTRIBUTE = "device_id"
     }
 
     private val nsdManager =
@@ -223,17 +223,25 @@ class MacDiscoveryManager(context: Context) {
             serviceInfo.host?.hostAddress
         } ?: return
 
+        val deviceId = serviceInfo.attributes[DEVICE_ID_ATTRIBUTE]
+            ?.let { String(it, Charsets.UTF_8) }
+            ?.takeIf { it.isNotBlank() }
+
         val mac = DiscoveredMac(
             name = serviceInfo.serviceName,
             host = host,
             port = serviceInfo.port,
-            serviceName = serviceInfo.serviceName
+            serviceName = serviceInfo.serviceName,
+            deviceId = deviceId
         )
 
         services[serviceInfo.serviceName] = mac
         publishServices()
 
-        Log.d(TAG, "Resolved Mac: ${mac.name} at ${mac.baseUrl}")
+        Log.d(
+            TAG,
+            "Resolved Mac: ${mac.name} at ${mac.baseUrl}, deviceId=${mac.deviceId}"
+        )
     }
 
     private fun removeService(serviceName: String) {

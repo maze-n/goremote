@@ -261,7 +261,8 @@ class MainActivity : ComponentActivity() {
                                                 name = mac.name,
                                                 host = mac.host,
                                                 port = mac.port,
-                                                serviceName = mac.serviceName
+                                                serviceName = mac.serviceName,
+                                                deviceId = mac.deviceId
                                             )
 
                                             // Persist both credentials and

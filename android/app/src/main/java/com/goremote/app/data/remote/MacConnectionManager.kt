@@ -1,4 +1,3 @@
-
 package com.goremote.app.data.remote
 
 import com.goremote.app.data.auth.PairedServer
@@ -26,17 +25,17 @@ class MacConnectionManager(
             return savedServer
         }
 
-        // Saved address is unavailable. Resolve the same Bonjour service.
+        // The saved address is unavailable. Resolve the same Bonjour device.
         discoveryManager.startDiscovery()
 
         try {
             val resolvedMac = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
                 discoveryManager.discoveredMacs
                     .mapNotNull { discoveredMacs ->
-
                         discoveredMacs.firstOrNull { mac ->
                             matches(
                                 savedServer = savedServer,
+                                discoveredDeviceId = mac.deviceId,
                                 discoveredName = mac.name,
                                 discoveredServiceName = mac.serviceName
                             ) && isHealthy(mac.baseUrl)
@@ -49,7 +48,9 @@ class MacConnectionManager(
                 name = resolvedMac.name,
                 host = resolvedMac.host,
                 port = resolvedMac.port,
-                serviceName = resolvedMac.serviceName
+                serviceName = resolvedMac.serviceName,
+                deviceId = resolvedMac.deviceId
+                    ?: savedServer.deviceId
             )
 
             withContext(Dispatchers.IO) {
@@ -65,16 +66,22 @@ class MacConnectionManager(
 
     private fun matches(
         savedServer: PairedServer,
+        discoveredDeviceId: String?,
         discoveredName: String,
         discoveredServiceName: String
     ): Boolean {
+
+        // Once paired with a device ID, never fall back to its display name.
+        if (savedServer.deviceId != null) {
+            return savedServer.deviceId == discoveredDeviceId
+        }
+
+        // Backward compatibility for older pairings.
         val savedServiceName = savedServer.serviceName
 
         return if (savedServiceName != null) {
             savedServiceName == discoveredServiceName
         } else {
-            // Compatibility with servers paired before service identity
-            // was persisted.
             savedServer.name == discoveredName ||
                 savedServer.name == discoveredServiceName
         }
