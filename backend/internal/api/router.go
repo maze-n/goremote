@@ -22,24 +22,15 @@ func getHealth(w http.ResponseWriter, req *http.Request) {
 }
 
 func getStatus(w http.ResponseWriter, req *http.Request) {
-	status := struct {
-		Volume struct {
-			Level int  `json:"level"`
-			Muted bool `json:"muted"`
-		} `json:"volume"`
-	}{}
+	w.WriteHeader(http.StatusOK)
 
-	volume, muted, err := volumeController.Get()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Volume
-	status.Volume.Level = volume
-	status.Volume.Muted = muted
-
-	json.NewEncoder(w).Encode(status)
+	json.NewEncoder(w).Encode(struct {
+		Status        string `json:"status"`
+		Authenticated bool   `json:"authenticated"`
+	}{
+		Status:        "ok",
+		Authenticated: true,
+	})
 }
 
 func togglePlayPause(w http.ResponseWriter, req *http.Request) {

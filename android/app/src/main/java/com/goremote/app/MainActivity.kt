@@ -20,6 +20,7 @@ import com.goremote.app.data.auth.TokenStore
 import com.goremote.app.data.discovery.MacDiscoveryManager
 import com.goremote.app.data.remote.ApiClient
 import com.goremote.app.data.remote.MacConnectionManager
+import com.goremote.app.data.remote.ConnectionResult
 import com.goremote.app.data.remote.PairingClient
 import com.goremote.app.domain.DiscoveredMac
 import com.goremote.app.ui.screens.ConnectionUnavailableScreen
@@ -53,7 +54,8 @@ class MainActivity : ComponentActivity() {
 
         connectionManager = MacConnectionManager(
             discoveryManager = discoveryManager,
-            pairedServerStore = pairedServerStore
+            pairedServerStore = pairedServerStore,
+            tokenStore = tokenStore
         )
 
         apiClient = ApiClient(tokenStore)
@@ -81,6 +83,10 @@ class MainActivity : ComponentActivity() {
         hasPairedServer = initialPairedServer != null
 
         setContent {
+            var isUnauthorized by remember {
+                mutableStateOf(false)
+            }
+
             val discoveredMacs by
                 discoveryManager.discoveredMacs.collectAsState()
 
@@ -118,42 +124,42 @@ class MainActivity : ComponentActivity() {
 
             // Automatic connection and reconnection.
             LaunchedEffect(pairedServer, retryCount) {
-                val savedServer = pairedServer
-                    ?: return@LaunchedEffect
-            
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                
-                    while (true) {
-                        isConnecting = activeServer == null
-                        connectionError = null
-            
-                        try {
-                            val resolvedServer = connectionManager.reconnect(
-                                activeServer ?: savedServer
-                            )
-            
-                            if (resolvedServer != null) {
-                                activeServer = resolvedServer
-                                pairedServer = resolvedServer
-                                connectionError = null
-                                isConnecting = false
-                            } else {
-                                activeServer = null
-                                connectionError =
-                                    "Mac is unavailable. Retrying automatically."
+            val savedServer = pairedServer
+                ?: return@LaunchedEffect
+
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    isConnecting = activeServer == null
+                    connectionError = null
+
+                    when (val result = connectionManager.reconnect(
+                        activeServer ?: savedServer
+                    )) {
+                            is ConnectionResult.Connected -> {
+                                activeServer = result.server
+                                pairedServer = result.server
+                                isUnauthorized = false
                                 isConnecting = false
                             }
-            
-                        } catch (e: Exception) {
-                            activeServer = null
-                            connectionError =
-                                e.message ?: "Could not connect to Mac"
-                            isConnecting = false
+
+                            ConnectionResult.Unauthorized -> {
+                                activeServer = null
+                                isUnauthorized = true
+                                isConnecting = false
+                                connectionError = "Your pairing has expired."
+                                return@repeatOnLifecycle
+                            }
+
+                            ConnectionResult.Unavailable -> {
+                                activeServer = null
+                                isUnauthorized = false
+                                isConnecting = false
+                                connectionError =
+                                    "Mac is unavailable. Retrying automatically."
+                            }
                         }
-            
+
                         delay(RETRY_INTERVAL_MS)
-            
-                        isConnecting = activeServer == null
                     }
                 }
             }
@@ -205,8 +211,11 @@ class MainActivity : ComponentActivity() {
 
                             ConnectionUnavailableScreen(
                                 macName = pairedServer!!.name,
-                                message = connectionError
-                                    ?: "Waiting for your Mac...",
+                                message = if (isUnauthorized) {
+                                    "Your pairing is no longer valid. Forget this Mac and pair again."
+                                } else {
+                                    connectionError ?: "Waiting for your Mac..."
+                                },
                                 onRetry = {
                                     retryCount++
                                 },
