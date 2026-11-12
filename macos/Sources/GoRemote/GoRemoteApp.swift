@@ -2,7 +2,7 @@
 import SwiftUI
 
 @main
-struct MacRemoteApp: App {
+struct GoRemoteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self)
     private var appDelegate
 

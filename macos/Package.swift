@@ -5,18 +5,58 @@ import PackageDescription
 
 let package = Package(
     name: "GoRemote",
+
     platforms: [
-        .macOS(.v13)
+        .macOS(.v15)
     ],
+
     products: [
         .executable(
             name: "GoRemote",
             targets: ["GoRemote"]
         )
     ],
+
+    dependencies: [
+        .package(
+            url: "https://github.com/grpc/grpc-swift-2.git",
+            from: "2.0.0"
+        ),
+        .package(
+            url: "https://github.com/grpc/grpc-swift-nio-transport.git",
+            from: "2.0.0"
+        ),
+        .package(
+            url: "https://github.com/grpc/grpc-swift-protobuf.git",
+            from: "2.0.0"
+        ),
+        .package(
+            url: "https://github.com/apple/swift-log.git",
+            exact: "1.16.2"
+        )
+    ],
+
     targets: [
         .executableTarget(
-            name: "GoRemote"
+            name: "GoRemote",
+            dependencies: [
+                .product(
+                    name: "GRPCCore",
+                    package: "grpc-swift-2"
+                ),
+                .product(
+                    name: "GRPCNIOTransportHTTP2",
+                    package: "grpc-swift-nio-transport"
+                ),
+                .product(
+                    name: "GRPCProtobuf",
+                    package: "grpc-swift-protobuf"
+                ),
+                .product(
+                    name: "Logging",
+                    package: "swift-log"
+                )
+            ]
         )
     ]
 )
