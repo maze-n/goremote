@@ -10,12 +10,7 @@ struct GoRemoteApp: App {
         MenuBarExtra {
             MenuBarView(server: appDelegate.server)
         } label: {
-            Label(
-                "GoRemote",
-                systemImage: appDelegate.server.isRunning
-                    ? "dot.radiowaves.left.and.right"
-                    : "wifi.slash"
-            )
+            Image(systemName: "display.2")
         }
         .menuBarExtraStyle(.window)
     }
