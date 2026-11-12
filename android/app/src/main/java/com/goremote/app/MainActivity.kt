@@ -5,47 +5,78 @@ import android.os.Bundle
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.goremote.app.data.discovery.MacDiscoveryManager
-import com.goremote.app.data.remote.PairingClient
-import com.goremote.app.data.remote.PairingResult
+import com.goremote.app.data.auth.PairedServer
+import com.goremote.app.data.auth.PairedServerStore
 import com.goremote.app.data.auth.TokenStore
+import com.goremote.app.data.discovery.MacDiscoveryManager
+import com.goremote.app.data.remote.ApiClient
+import com.goremote.app.data.remote.PairingClient
 import com.goremote.app.domain.DiscoveredMac
 import com.goremote.app.ui.screens.PinEntryScreen
+import com.goremote.app.ui.screens.RemoteScreen
 import com.goremote.app.ui.screens.ServerSelectionScreen
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var discoveryManager: MacDiscoveryManager
     private lateinit var tokenStore: TokenStore
-    
+    private lateinit var pairedServerStore: PairedServerStore
+    private lateinit var apiClient: ApiClient
+
     private val pairingClient = PairingClient()
+
+    // Used by onStart() to avoid starting discovery when already paired.
+    private var hasPairedServer = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         discoveryManager = MacDiscoveryManager(applicationContext)
         tokenStore = TokenStore(applicationContext)
+        pairedServerStore = PairedServerStore(applicationContext)
+        apiClient = ApiClient(tokenStore)
+
+        // Restore the previous pairing, if both server details and token exist.
+        var initialPairedServer = pairedServerStore.get()
+
+        val hasValidToken = try {
+            tokenStore.get() != null
+        } catch (_: Exception) {
+            false
+        }
+
+        if (initialPairedServer != null && !hasValidToken) {
+            initialPairedServer = null
+            pairedServerStore.clear()
+            tokenStore.clear()
+        }
+
+        if (initialPairedServer == null) {
+            pairedServerStore.clear()
+        }
+
+        hasPairedServer = initialPairedServer != null
 
         setContent {
             val discoveredMacs by
                 discoveryManager.discoveredMacs.collectAsState()
 
-            var selectedMac by remember {
-                mutableStateOf<DiscoveredMac?>(null)
+            var pairedServer by remember {
+                mutableStateOf(initialPairedServer)
             }
 
-            var pairedMacName by remember {
-                mutableStateOf<String?>(null)
+            var selectedMac by remember {
+                mutableStateOf<DiscoveredMac?>(null)
             }
 
             var isPairing by remember {
@@ -56,17 +87,29 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf<String?>(null)
             }
 
-            MaterialTheme(
-                colorScheme = lightColorScheme()
-            ) {
+            MaterialTheme(colorScheme = lightColorScheme()) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     when {
-                        pairedMacName != null -> {
-                            PairingSuccessScreen(
-                                macName = pairedMacName!!
+                        pairedServer != null -> {
+                            RemoteScreen(
+                                macName = pairedServer!!.name,
+                                macAddress = pairedServer!!.baseUrl,
+                                onUnpair = {
+                                    // This forgets the Mac locally.
+                                    // Server-side token revocation is a separate feature.
+                                    tokenStore.clear()
+                                    pairedServerStore.clear()
+
+                                    pairedServer = null
+                                    selectedMac = null
+                                    pairingError = null
+                                    hasPairedServer = false
+
+                                    discoveryManager.startDiscovery()
+                                }
                             )
                         }
 
@@ -98,12 +141,36 @@ class MainActivity : ComponentActivity() {
                                                 deviceName = deviceName
                                             )
 
-                                            // Encrypt and persist the token off the main thread.
                                             withContext(Dispatchers.IO) {
-                                                tokenStore.save(result.accessToken)
+                                                try {
+                                                    tokenStore.save(
+                                                        result.accessToken
+                                                    )
+
+                                                    pairedServerStore.save(
+                                                        PairedServer(
+                                                            name = mac.name,
+                                                            host = mac.host,
+                                                            port = mac.port
+                                                        )
+                                                    )
+                                                } catch (e: Exception) {
+                                                    tokenStore.clear()
+                                                    pairedServerStore.clear()
+                                                    throw e
+                                                }
                                             }
 
-                                            pairedMacName = mac.name
+                                            hasPairedServer = true
+
+                                            pairedServer = PairedServer(
+                                                name = mac.name,
+                                                host = mac.host,
+                                                port = mac.port
+                                            )
+
+                                            selectedMac = null
+
                                         } catch (e: Exception) {
                                             pairingError =
                                                 e.message ?: "Pairing failed"
@@ -136,7 +203,10 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        if (::discoveryManager.isInitialized) {
+        if (
+            ::discoveryManager.isInitialized &&
+            !hasPairedServer
+        ) {
             discoveryManager.startDiscovery()
         }
     }
@@ -147,29 +217,5 @@ class MainActivity : ComponentActivity() {
         }
 
         super.onStop()
-    }
-}
-
-@Composable
-private fun PairingSuccessScreen(macName: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Paired successfully",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Text(
-            text = "Your Android device is now paired with $macName.",
-            style = MaterialTheme.typography.bodyLarge
-        )
     }
 }
