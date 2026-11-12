@@ -1,0 +1,34 @@
+
+syntax = "proto3";
+
+package goremote.v1;
+
+option go_package = "goremote/gen/go/goremote/v1;goremotev1";
+
+service ManagementService {
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
+
+  rpc StartPairing(StartPairingRequest) returns (StartPairingResponse);
+
+  rpc StopServer(StopServerRequest) returns (StopServerResponse);
+}
+
+message GetStatusRequest {}
+
+message GetStatusResponse {
+  bool running = 1;
+  string version = 2;
+}
+
+message StartPairingRequest {}
+
+message StartPairingResponse {
+  string code = 1;
+  int32 expires_in_seconds = 2;
+}
+
+message StopServerRequest {}
+
+message StopServerResponse {
+  bool success = 1;
+}
