@@ -188,6 +188,7 @@ class MainActivity : ComponentActivity() {
                             RemoteScreen(
                                 macName = activeServer!!.name,
                                 macAddress = activeServer!!.baseUrl,
+                                apiClient = apiClient,
                                 onUnpair = {
                                     forgetMac(
                                         tokenStore = tokenStore,

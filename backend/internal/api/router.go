@@ -5,10 +5,24 @@ import (
 	"goremote/internal/auth"
 	"goremote/internal/media"
 	"goremote/internal/volume"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
-var mediaController media.Controller = media.NewMacOSMediaController("./bin/media-helper")
+func newMediaController() media.Controller {
+	executablePath, err := os.Executable()
+	if err != nil {
+		log.Fatalf("failed to locate GoRemote server executable: %v", err)
+	}
+
+	helperPath := filepath.Join(filepath.Dir(executablePath), "media-helper")
+
+	return media.NewMacOSMediaController(helperPath)
+}
+
+var mediaController media.Controller = newMediaController()
 var volumeController volume.Controller = volume.NewMacOSVolumeController()
 
 func getHealth(w http.ResponseWriter, req *http.Request) {
