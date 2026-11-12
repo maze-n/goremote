@@ -6,6 +6,7 @@ import (
 	goremotev1 "goremote/gen/go/goremote/v1"
 	"goremote/internal/api"
 	"goremote/internal/auth"
+	"goremote/internal/discovery"
 	management "goremote/internal/grpc/management"
 	"goremote/internal/platform/macos"
 	"log"
@@ -93,6 +94,14 @@ func run() error {
 			serverErrors <- err
 		}
 	}()
+
+	bonjourServer, err := discovery.Start(8090)
+	if err != nil {
+		log.Printf("Bonjour advertisement failed: %v", err)
+	} else {
+		log.Println("Bonjour service advertised: _goremote._tcp")
+		defer bonjourServer.Shutdown()
+	}
 
 	// Wait for shutdown signal or unexpected server failure.
 	var runErr error
