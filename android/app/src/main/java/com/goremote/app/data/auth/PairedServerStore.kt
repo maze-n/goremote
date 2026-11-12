@@ -6,7 +6,8 @@ import android.content.Context
 data class PairedServer(
     val name: String,
     val host: String,
-    val port: Int
+    val port: Int,
+    val serviceName: String? = null
 ) {
     val baseUrl: String
         get() = "http://$host:$port"
@@ -23,6 +24,7 @@ class PairedServerStore(context: Context) {
                 .putString(KEY_NAME, server.name)
                 .putString(KEY_HOST, server.host)
                 .putInt(KEY_PORT, server.port)
+                .putString(KEY_SERVICE_NAME, server.serviceName)
                 .commit()
         ) {
             "Could not save paired Mac details"
@@ -33,6 +35,7 @@ class PairedServerStore(context: Context) {
         val name = preferences.getString(KEY_NAME, null) ?: return null
         val host = preferences.getString(KEY_HOST, null) ?: return null
         val port = preferences.getInt(KEY_PORT, -1)
+        val serviceName = preferences.getString(KEY_SERVICE_NAME, null)
 
         if (host.isBlank() || port !in 1..65535) {
             return null
@@ -41,7 +44,8 @@ class PairedServerStore(context: Context) {
         return PairedServer(
             name = name,
             host = host,
-            port = port
+            port = port,
+            serviceName = serviceName
         )
     }
 
@@ -56,5 +60,6 @@ class PairedServerStore(context: Context) {
         const val KEY_NAME = "name"
         const val KEY_HOST = "host"
         const val KEY_PORT = "port"
+        const val KEY_SERVICE_NAME = "service_name"
     }
 }
