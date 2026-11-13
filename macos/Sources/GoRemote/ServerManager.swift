@@ -1,4 +1,3 @@
-
 import Foundation
 import Combine
 
@@ -10,7 +9,9 @@ final class ServerManager: ObservableObject {
     private var process: Process?
 
     func start() {
-        guard !isRunning else { return }
+        guard !isRunning else {
+            return
+        }
 
         guard let executableURL = Bundle.main.executableURL else {
             errorMessage = "Cannot locate application executable"
@@ -19,11 +20,8 @@ final class ServerManager: ObservableObject {
 
         let directory = executableURL.deletingLastPathComponent()
         let serverURL = directory.appendingPathComponent("goremote-server")
-        let helperURL = directory.appendingPathComponent("media-helper")
 
-        guard FileManager.default.isExecutableFile(
-            atPath: serverURL.path
-        ) else {
+        guard FileManager.default.isExecutableFile(atPath: serverURL.path) else {
             errorMessage = "Go server executable not found"
             return
         }
@@ -31,11 +29,6 @@ final class ServerManager: ObservableObject {
         let child = Process()
         child.executableURL = serverURL
 
-        var environment = ProcessInfo.processInfo.environment
-        environment["GOREMOTE_MEDIA_HELPER"] = helperURL.path
-        child.environment = environment
-
-        // Avoid an unread Pipe filling up and blocking the child process.
         child.standardOutput = FileHandle.nullDevice
         child.standardError = FileHandle.nullDevice
 

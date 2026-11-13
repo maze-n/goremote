@@ -195,3 +195,181 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "goremote/v1/management.proto",
 }
+
+const (
+	MediaControlService_PlayPause_FullMethodName = "/goremote.v1.MediaControlService/PlayPause"
+	MediaControlService_Next_FullMethodName      = "/goremote.v1.MediaControlService/Next"
+	MediaControlService_Previous_FullMethodName  = "/goremote.v1.MediaControlService/Previous"
+)
+
+// MediaControlServiceClient is the client API for MediaControlService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type MediaControlServiceClient interface {
+	PlayPause(ctx context.Context, in *MediaCommandRequest, opts ...grpc.CallOption) (*MediaCommandResponse, error)
+	Next(ctx context.Context, in *MediaCommandRequest, opts ...grpc.CallOption) (*MediaCommandResponse, error)
+	Previous(ctx context.Context, in *MediaCommandRequest, opts ...grpc.CallOption) (*MediaCommandResponse, error)
+}
+
+type mediaControlServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMediaControlServiceClient(cc grpc.ClientConnInterface) MediaControlServiceClient {
+	return &mediaControlServiceClient{cc}
+}
+
+func (c *mediaControlServiceClient) PlayPause(ctx context.Context, in *MediaCommandRequest, opts ...grpc.CallOption) (*MediaCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MediaCommandResponse)
+	err := c.cc.Invoke(ctx, MediaControlService_PlayPause_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mediaControlServiceClient) Next(ctx context.Context, in *MediaCommandRequest, opts ...grpc.CallOption) (*MediaCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MediaCommandResponse)
+	err := c.cc.Invoke(ctx, MediaControlService_Next_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mediaControlServiceClient) Previous(ctx context.Context, in *MediaCommandRequest, opts ...grpc.CallOption) (*MediaCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MediaCommandResponse)
+	err := c.cc.Invoke(ctx, MediaControlService_Previous_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MediaControlServiceServer is the server API for MediaControlService service.
+// All implementations must embed UnimplementedMediaControlServiceServer
+// for forward compatibility.
+type MediaControlServiceServer interface {
+	PlayPause(context.Context, *MediaCommandRequest) (*MediaCommandResponse, error)
+	Next(context.Context, *MediaCommandRequest) (*MediaCommandResponse, error)
+	Previous(context.Context, *MediaCommandRequest) (*MediaCommandResponse, error)
+	mustEmbedUnimplementedMediaControlServiceServer()
+}
+
+// UnimplementedMediaControlServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedMediaControlServiceServer struct{}
+
+func (UnimplementedMediaControlServiceServer) PlayPause(context.Context, *MediaCommandRequest) (*MediaCommandResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PlayPause not implemented")
+}
+func (UnimplementedMediaControlServiceServer) Next(context.Context, *MediaCommandRequest) (*MediaCommandResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Next not implemented")
+}
+func (UnimplementedMediaControlServiceServer) Previous(context.Context, *MediaCommandRequest) (*MediaCommandResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Previous not implemented")
+}
+func (UnimplementedMediaControlServiceServer) mustEmbedUnimplementedMediaControlServiceServer() {}
+func (UnimplementedMediaControlServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeMediaControlServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MediaControlServiceServer will
+// result in compilation errors.
+type UnsafeMediaControlServiceServer interface {
+	mustEmbedUnimplementedMediaControlServiceServer()
+}
+
+func RegisterMediaControlServiceServer(s grpc.ServiceRegistrar, srv MediaControlServiceServer) {
+	// If the following call panics, it indicates UnimplementedMediaControlServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&MediaControlService_ServiceDesc, srv)
+}
+
+func _MediaControlService_PlayPause_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaControlServiceServer).PlayPause(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaControlService_PlayPause_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaControlServiceServer).PlayPause(ctx, req.(*MediaCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MediaControlService_Next_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaControlServiceServer).Next(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaControlService_Next_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaControlServiceServer).Next(ctx, req.(*MediaCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MediaControlService_Previous_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaControlServiceServer).Previous(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaControlService_Previous_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaControlServiceServer).Previous(ctx, req.(*MediaCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MediaControlService_ServiceDesc is the grpc.ServiceDesc for MediaControlService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var MediaControlService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "goremote.v1.MediaControlService",
+	HandlerType: (*MediaControlServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PlayPause",
+			Handler:    _MediaControlService_PlayPause_Handler,
+		},
+		{
+			MethodName: "Next",
+			Handler:    _MediaControlService_Next_Handler,
+		},
+		{
+			MethodName: "Previous",
+			Handler:    _MediaControlService_Previous_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "goremote/v1/management.proto",
+}

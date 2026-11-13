@@ -32,3 +32,16 @@ message StopServerRequest {}
 message StopServerResponse {
   bool success = 1;
 }
+
+service MediaControlService {
+  rpc PlayPause(MediaCommandRequest) returns (MediaCommandResponse);
+  rpc Next(MediaCommandRequest) returns (MediaCommandResponse);
+  rpc Previous(MediaCommandRequest) returns (MediaCommandResponse);
+}
+
+message MediaCommandRequest {}
+
+message MediaCommandResponse {
+  bool success = 1;
+  string message = 2;
+}

@@ -277,6 +277,94 @@ func (x *StopServerResponse) GetSuccess() bool {
 	return false
 }
 
+type MediaCommandRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MediaCommandRequest) Reset() {
+	*x = MediaCommandRequest{}
+	mi := &file_goremote_v1_management_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MediaCommandRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MediaCommandRequest) ProtoMessage() {}
+
+func (x *MediaCommandRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_goremote_v1_management_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MediaCommandRequest.ProtoReflect.Descriptor instead.
+func (*MediaCommandRequest) Descriptor() ([]byte, []int) {
+	return file_goremote_v1_management_proto_rawDescGZIP(), []int{6}
+}
+
+type MediaCommandResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MediaCommandResponse) Reset() {
+	*x = MediaCommandResponse{}
+	mi := &file_goremote_v1_management_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MediaCommandResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MediaCommandResponse) ProtoMessage() {}
+
+func (x *MediaCommandResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_goremote_v1_management_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MediaCommandResponse.ProtoReflect.Descriptor instead.
+func (*MediaCommandResponse) Descriptor() ([]byte, []int) {
+	return file_goremote_v1_management_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *MediaCommandResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *MediaCommandResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_goremote_v1_management_proto protoreflect.FileDescriptor
 
 const file_goremote_v1_management_proto_rawDesc = "" +
@@ -292,12 +380,20 @@ const file_goremote_v1_management_proto_rawDesc = "" +
 	"\x12expires_in_seconds\x18\x02 \x01(\x05R\x10expiresInSeconds\"\x13\n" +
 	"\x11StopServerRequest\".\n" +
 	"\x12StopServerResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\x83\x02\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x15\n" +
+	"\x13MediaCommandRequest\"J\n" +
+	"\x14MediaCommandResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\x83\x02\n" +
 	"\x11ManagementService\x12J\n" +
 	"\tGetStatus\x12\x1d.goremote.v1.GetStatusRequest\x1a\x1e.goremote.v1.GetStatusResponse\x12S\n" +
 	"\fStartPairing\x12 .goremote.v1.StartPairingRequest\x1a!.goremote.v1.StartPairingResponse\x12M\n" +
 	"\n" +
-	"StopServer\x12\x1e.goremote.v1.StopServerRequest\x1a\x1f.goremote.v1.StopServerResponseB(Z&goremote/gen/go/goremote/v1;goremotev1b\x06proto3"
+	"StopServer\x12\x1e.goremote.v1.StopServerRequest\x1a\x1f.goremote.v1.StopServerResponse2\x85\x02\n" +
+	"\x13MediaControlService\x12P\n" +
+	"\tPlayPause\x12 .goremote.v1.MediaCommandRequest\x1a!.goremote.v1.MediaCommandResponse\x12K\n" +
+	"\x04Next\x12 .goremote.v1.MediaCommandRequest\x1a!.goremote.v1.MediaCommandResponse\x12O\n" +
+	"\bPrevious\x12 .goremote.v1.MediaCommandRequest\x1a!.goremote.v1.MediaCommandResponseB(Z&goremote/gen/go/goremote/v1;goremotev1b\x06proto3"
 
 var (
 	file_goremote_v1_management_proto_rawDescOnce sync.Once
@@ -311,7 +407,7 @@ func file_goremote_v1_management_proto_rawDescGZIP() []byte {
 	return file_goremote_v1_management_proto_rawDescData
 }
 
-var file_goremote_v1_management_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_goremote_v1_management_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_goremote_v1_management_proto_goTypes = []any{
 	(*GetStatusRequest)(nil),     // 0: goremote.v1.GetStatusRequest
 	(*GetStatusResponse)(nil),    // 1: goremote.v1.GetStatusResponse
@@ -319,16 +415,24 @@ var file_goremote_v1_management_proto_goTypes = []any{
 	(*StartPairingResponse)(nil), // 3: goremote.v1.StartPairingResponse
 	(*StopServerRequest)(nil),    // 4: goremote.v1.StopServerRequest
 	(*StopServerResponse)(nil),   // 5: goremote.v1.StopServerResponse
+	(*MediaCommandRequest)(nil),  // 6: goremote.v1.MediaCommandRequest
+	(*MediaCommandResponse)(nil), // 7: goremote.v1.MediaCommandResponse
 }
 var file_goremote_v1_management_proto_depIdxs = []int32{
 	0, // 0: goremote.v1.ManagementService.GetStatus:input_type -> goremote.v1.GetStatusRequest
 	2, // 1: goremote.v1.ManagementService.StartPairing:input_type -> goremote.v1.StartPairingRequest
 	4, // 2: goremote.v1.ManagementService.StopServer:input_type -> goremote.v1.StopServerRequest
-	1, // 3: goremote.v1.ManagementService.GetStatus:output_type -> goremote.v1.GetStatusResponse
-	3, // 4: goremote.v1.ManagementService.StartPairing:output_type -> goremote.v1.StartPairingResponse
-	5, // 5: goremote.v1.ManagementService.StopServer:output_type -> goremote.v1.StopServerResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	6, // 3: goremote.v1.MediaControlService.PlayPause:input_type -> goremote.v1.MediaCommandRequest
+	6, // 4: goremote.v1.MediaControlService.Next:input_type -> goremote.v1.MediaCommandRequest
+	6, // 5: goremote.v1.MediaControlService.Previous:input_type -> goremote.v1.MediaCommandRequest
+	1, // 6: goremote.v1.ManagementService.GetStatus:output_type -> goremote.v1.GetStatusResponse
+	3, // 7: goremote.v1.ManagementService.StartPairing:output_type -> goremote.v1.StartPairingResponse
+	5, // 8: goremote.v1.ManagementService.StopServer:output_type -> goremote.v1.StopServerResponse
+	7, // 9: goremote.v1.MediaControlService.PlayPause:output_type -> goremote.v1.MediaCommandResponse
+	7, // 10: goremote.v1.MediaControlService.Next:output_type -> goremote.v1.MediaCommandResponse
+	7, // 11: goremote.v1.MediaControlService.Previous:output_type -> goremote.v1.MediaCommandResponse
+	6, // [6:12] is the sub-list for method output_type
+	0, // [0:6] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -345,9 +449,9 @@ func file_goremote_v1_management_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_goremote_v1_management_proto_rawDesc), len(file_goremote_v1_management_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_goremote_v1_management_proto_goTypes,
 		DependencyIndexes: file_goremote_v1_management_proto_depIdxs,

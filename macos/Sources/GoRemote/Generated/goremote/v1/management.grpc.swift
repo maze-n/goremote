@@ -74,6 +74,286 @@ extension GRPCCore.ServiceDescriptor {
     internal static let goremote_v1_ManagementService = GRPCCore.ServiceDescriptor(fullyQualifiedService: "goremote.v1.ManagementService")
 }
 
+// MARK: goremote.v1.ManagementService (server)
+
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_ManagementService {
+    /// Streaming variant of the service protocol for the "goremote.v1.ManagementService" service.
+    ///
+    /// This protocol is the lowest-level of the service protocols generated for this service
+    /// giving you the most flexibility over the implementation of your service. This comes at
+    /// the cost of more verbose and less strict APIs. Each RPC requires you to implement it in
+    /// terms of a request stream and response stream. Where the RPC expects only a single
+    /// request or response message, you are responsible for ensuring your implementation
+    /// maintains this invariant.
+    ///
+    /// Where possible, prefer using the stricter, less-verbose ``ServiceProtocol``
+    /// or ``SimpleServiceProtocol`` instead.
+    internal protocol StreamingServiceProtocol: GRPCCore.RegistrableRPCService {
+        /// Handle the "GetStatus" method.
+        ///
+        /// - Parameters:
+        ///   - request: A streaming request of `Goremote_V1_GetStatusRequest` messages.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A streaming response of `Goremote_V1_GetStatusResponse` messages.
+        func getStatus(
+            request: GRPCCore.StreamingServerRequest<Goremote_V1_GetStatusRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_GetStatusResponse>
+
+        /// Handle the "StartPairing" method.
+        ///
+        /// - Parameters:
+        ///   - request: A streaming request of `Goremote_V1_StartPairingRequest` messages.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A streaming response of `Goremote_V1_StartPairingResponse` messages.
+        func startPairing(
+            request: GRPCCore.StreamingServerRequest<Goremote_V1_StartPairingRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_StartPairingResponse>
+
+        /// Handle the "StopServer" method.
+        ///
+        /// - Parameters:
+        ///   - request: A streaming request of `Goremote_V1_StopServerRequest` messages.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A streaming response of `Goremote_V1_StopServerResponse` messages.
+        func stopServer(
+            request: GRPCCore.StreamingServerRequest<Goremote_V1_StopServerRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_StopServerResponse>
+    }
+
+    /// Service protocol for the "goremote.v1.ManagementService" service.
+    ///
+    /// This protocol is higher level than ``StreamingServiceProtocol`` but lower level than
+    /// the ``SimpleServiceProtocol``, it provides access to request and response metadata and
+    /// trailing response metadata. If you don't need these then consider using
+    /// the ``SimpleServiceProtocol``. If you need fine grained control over your RPCs then
+    /// use ``StreamingServiceProtocol``.
+    internal protocol ServiceProtocol: Goremote_V1_ManagementService.StreamingServiceProtocol {
+        /// Handle the "GetStatus" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_GetStatusRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A response containing a single `Goremote_V1_GetStatusResponse` message.
+        func getStatus(
+            request: GRPCCore.ServerRequest<Goremote_V1_GetStatusRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.ServerResponse<Goremote_V1_GetStatusResponse>
+
+        /// Handle the "StartPairing" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_StartPairingRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A response containing a single `Goremote_V1_StartPairingResponse` message.
+        func startPairing(
+            request: GRPCCore.ServerRequest<Goremote_V1_StartPairingRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.ServerResponse<Goremote_V1_StartPairingResponse>
+
+        /// Handle the "StopServer" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_StopServerRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A response containing a single `Goremote_V1_StopServerResponse` message.
+        func stopServer(
+            request: GRPCCore.ServerRequest<Goremote_V1_StopServerRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.ServerResponse<Goremote_V1_StopServerResponse>
+    }
+
+    /// Simple service protocol for the "goremote.v1.ManagementService" service.
+    ///
+    /// This is the highest level protocol for the service. The API is the easiest to use but
+    /// doesn't provide access to request or response metadata. If you need access to these
+    /// then use ``ServiceProtocol`` instead.
+    internal protocol SimpleServiceProtocol: Goremote_V1_ManagementService.ServiceProtocol {
+        /// Handle the "GetStatus" method.
+        ///
+        /// - Parameters:
+        ///   - request: A `Goremote_V1_GetStatusRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A `Goremote_V1_GetStatusResponse` to respond with.
+        func getStatus(
+            request: Goremote_V1_GetStatusRequest,
+            context: GRPCCore.ServerContext
+        ) async throws -> Goremote_V1_GetStatusResponse
+
+        /// Handle the "StartPairing" method.
+        ///
+        /// - Parameters:
+        ///   - request: A `Goremote_V1_StartPairingRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A `Goremote_V1_StartPairingResponse` to respond with.
+        func startPairing(
+            request: Goremote_V1_StartPairingRequest,
+            context: GRPCCore.ServerContext
+        ) async throws -> Goremote_V1_StartPairingResponse
+
+        /// Handle the "StopServer" method.
+        ///
+        /// - Parameters:
+        ///   - request: A `Goremote_V1_StopServerRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A `Goremote_V1_StopServerResponse` to respond with.
+        func stopServer(
+            request: Goremote_V1_StopServerRequest,
+            context: GRPCCore.ServerContext
+        ) async throws -> Goremote_V1_StopServerResponse
+    }
+}
+
+// Default implementation of 'registerMethods(with:)'.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_ManagementService.StreamingServiceProtocol {
+    internal func registerMethods<Transport>(with router: inout GRPCCore.RPCRouter<Transport>) where Transport: GRPCCore.ServerTransport {
+        router.registerHandler(
+            forMethod: Goremote_V1_ManagementService.Method.GetStatus.descriptor,
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_GetStatusRequest>(),
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_GetStatusResponse>(),
+            handler: { request, context in
+                try await self.getStatus(
+                    request: request,
+                    context: context
+                )
+            }
+        )
+        router.registerHandler(
+            forMethod: Goremote_V1_ManagementService.Method.StartPairing.descriptor,
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_StartPairingRequest>(),
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_StartPairingResponse>(),
+            handler: { request, context in
+                try await self.startPairing(
+                    request: request,
+                    context: context
+                )
+            }
+        )
+        router.registerHandler(
+            forMethod: Goremote_V1_ManagementService.Method.StopServer.descriptor,
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_StopServerRequest>(),
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_StopServerResponse>(),
+            handler: { request, context in
+                try await self.stopServer(
+                    request: request,
+                    context: context
+                )
+            }
+        )
+    }
+}
+
+// Default implementation of streaming methods from 'StreamingServiceProtocol'.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_ManagementService.ServiceProtocol {
+    internal func getStatus(
+        request: GRPCCore.StreamingServerRequest<Goremote_V1_GetStatusRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_GetStatusResponse> {
+        let response = try await self.getStatus(
+            request: GRPCCore.ServerRequest(stream: request),
+            context: context
+        )
+        return GRPCCore.StreamingServerResponse(single: response)
+    }
+
+    internal func startPairing(
+        request: GRPCCore.StreamingServerRequest<Goremote_V1_StartPairingRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_StartPairingResponse> {
+        let response = try await self.startPairing(
+            request: GRPCCore.ServerRequest(stream: request),
+            context: context
+        )
+        return GRPCCore.StreamingServerResponse(single: response)
+    }
+
+    internal func stopServer(
+        request: GRPCCore.StreamingServerRequest<Goremote_V1_StopServerRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_StopServerResponse> {
+        let response = try await self.stopServer(
+            request: GRPCCore.ServerRequest(stream: request),
+            context: context
+        )
+        return GRPCCore.StreamingServerResponse(single: response)
+    }
+}
+
+// Default implementation of methods from 'ServiceProtocol'.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_ManagementService.SimpleServiceProtocol {
+    internal func getStatus(
+        request: GRPCCore.ServerRequest<Goremote_V1_GetStatusRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.ServerResponse<Goremote_V1_GetStatusResponse> {
+        return GRPCCore.ServerResponse<Goremote_V1_GetStatusResponse>(
+            message: try await self.getStatus(
+                request: request.message,
+                context: context
+            ),
+            metadata: [:]
+        )
+    }
+
+    internal func startPairing(
+        request: GRPCCore.ServerRequest<Goremote_V1_StartPairingRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.ServerResponse<Goremote_V1_StartPairingResponse> {
+        return GRPCCore.ServerResponse<Goremote_V1_StartPairingResponse>(
+            message: try await self.startPairing(
+                request: request.message,
+                context: context
+            ),
+            metadata: [:]
+        )
+    }
+
+    internal func stopServer(
+        request: GRPCCore.ServerRequest<Goremote_V1_StopServerRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.ServerResponse<Goremote_V1_StopServerResponse> {
+        return GRPCCore.ServerResponse<Goremote_V1_StopServerResponse>(
+            message: try await self.stopServer(
+                request: request.message,
+                context: context
+            ),
+            metadata: [:]
+        )
+    }
+}
+
 // MARK: goremote.v1.ManagementService (client)
 
 @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
@@ -412,6 +692,694 @@ extension Goremote_V1_ManagementService.ClientProtocol {
             metadata: metadata
         )
         return try await self.stopServer(
+            request: request,
+            options: options,
+            onResponse: handleResponse
+        )
+    }
+}
+
+// MARK: - goremote.v1.MediaControlService
+
+/// Namespace containing generated types for the "goremote.v1.MediaControlService" service.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+internal enum Goremote_V1_MediaControlService: Sendable {
+    /// Service descriptor for the "goremote.v1.MediaControlService" service.
+    internal static let descriptor = GRPCCore.ServiceDescriptor(fullyQualifiedService: "goremote.v1.MediaControlService")
+    /// Namespace for method metadata.
+    internal enum Method: Sendable {
+        /// Namespace for "PlayPause" metadata.
+        internal enum PlayPause: Sendable {
+            /// Request type for "PlayPause".
+            internal typealias Input = Goremote_V1_MediaCommandRequest
+            /// Response type for "PlayPause".
+            internal typealias Output = Goremote_V1_MediaCommandResponse
+            /// Descriptor for "PlayPause".
+            internal static let descriptor = GRPCCore.MethodDescriptor(
+                service: GRPCCore.ServiceDescriptor(fullyQualifiedService: "goremote.v1.MediaControlService"),
+                method: "PlayPause",
+                type: .unary
+            )
+        }
+        /// Namespace for "Next" metadata.
+        internal enum Next: Sendable {
+            /// Request type for "Next".
+            internal typealias Input = Goremote_V1_MediaCommandRequest
+            /// Response type for "Next".
+            internal typealias Output = Goremote_V1_MediaCommandResponse
+            /// Descriptor for "Next".
+            internal static let descriptor = GRPCCore.MethodDescriptor(
+                service: GRPCCore.ServiceDescriptor(fullyQualifiedService: "goremote.v1.MediaControlService"),
+                method: "Next",
+                type: .unary
+            )
+        }
+        /// Namespace for "Previous" metadata.
+        internal enum Previous: Sendable {
+            /// Request type for "Previous".
+            internal typealias Input = Goremote_V1_MediaCommandRequest
+            /// Response type for "Previous".
+            internal typealias Output = Goremote_V1_MediaCommandResponse
+            /// Descriptor for "Previous".
+            internal static let descriptor = GRPCCore.MethodDescriptor(
+                service: GRPCCore.ServiceDescriptor(fullyQualifiedService: "goremote.v1.MediaControlService"),
+                method: "Previous",
+                type: .unary
+            )
+        }
+        /// Descriptors for all methods in the "goremote.v1.MediaControlService" service.
+        internal static let descriptors: [GRPCCore.MethodDescriptor] = [
+            PlayPause.descriptor,
+            Next.descriptor,
+            Previous.descriptor
+        ]
+    }
+}
+
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension GRPCCore.ServiceDescriptor {
+    /// Service descriptor for the "goremote.v1.MediaControlService" service.
+    internal static let goremote_v1_MediaControlService = GRPCCore.ServiceDescriptor(fullyQualifiedService: "goremote.v1.MediaControlService")
+}
+
+// MARK: goremote.v1.MediaControlService (server)
+
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService {
+    /// Streaming variant of the service protocol for the "goremote.v1.MediaControlService" service.
+    ///
+    /// This protocol is the lowest-level of the service protocols generated for this service
+    /// giving you the most flexibility over the implementation of your service. This comes at
+    /// the cost of more verbose and less strict APIs. Each RPC requires you to implement it in
+    /// terms of a request stream and response stream. Where the RPC expects only a single
+    /// request or response message, you are responsible for ensuring your implementation
+    /// maintains this invariant.
+    ///
+    /// Where possible, prefer using the stricter, less-verbose ``ServiceProtocol``
+    /// or ``SimpleServiceProtocol`` instead.
+    internal protocol StreamingServiceProtocol: GRPCCore.RegistrableRPCService {
+        /// Handle the "PlayPause" method.
+        ///
+        /// - Parameters:
+        ///   - request: A streaming request of `Goremote_V1_MediaCommandRequest` messages.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A streaming response of `Goremote_V1_MediaCommandResponse` messages.
+        func playPause(
+            request: GRPCCore.StreamingServerRequest<Goremote_V1_MediaCommandRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_MediaCommandResponse>
+
+        /// Handle the "Next" method.
+        ///
+        /// - Parameters:
+        ///   - request: A streaming request of `Goremote_V1_MediaCommandRequest` messages.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A streaming response of `Goremote_V1_MediaCommandResponse` messages.
+        func next(
+            request: GRPCCore.StreamingServerRequest<Goremote_V1_MediaCommandRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_MediaCommandResponse>
+
+        /// Handle the "Previous" method.
+        ///
+        /// - Parameters:
+        ///   - request: A streaming request of `Goremote_V1_MediaCommandRequest` messages.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A streaming response of `Goremote_V1_MediaCommandResponse` messages.
+        func previous(
+            request: GRPCCore.StreamingServerRequest<Goremote_V1_MediaCommandRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_MediaCommandResponse>
+    }
+
+    /// Service protocol for the "goremote.v1.MediaControlService" service.
+    ///
+    /// This protocol is higher level than ``StreamingServiceProtocol`` but lower level than
+    /// the ``SimpleServiceProtocol``, it provides access to request and response metadata and
+    /// trailing response metadata. If you don't need these then consider using
+    /// the ``SimpleServiceProtocol``. If you need fine grained control over your RPCs then
+    /// use ``StreamingServiceProtocol``.
+    internal protocol ServiceProtocol: Goremote_V1_MediaControlService.StreamingServiceProtocol {
+        /// Handle the "PlayPause" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A response containing a single `Goremote_V1_MediaCommandResponse` message.
+        func playPause(
+            request: GRPCCore.ServerRequest<Goremote_V1_MediaCommandRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse>
+
+        /// Handle the "Next" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A response containing a single `Goremote_V1_MediaCommandResponse` message.
+        func next(
+            request: GRPCCore.ServerRequest<Goremote_V1_MediaCommandRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse>
+
+        /// Handle the "Previous" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A response containing a single `Goremote_V1_MediaCommandResponse` message.
+        func previous(
+            request: GRPCCore.ServerRequest<Goremote_V1_MediaCommandRequest>,
+            context: GRPCCore.ServerContext
+        ) async throws -> GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse>
+    }
+
+    /// Simple service protocol for the "goremote.v1.MediaControlService" service.
+    ///
+    /// This is the highest level protocol for the service. The API is the easiest to use but
+    /// doesn't provide access to request or response metadata. If you need access to these
+    /// then use ``ServiceProtocol`` instead.
+    internal protocol SimpleServiceProtocol: Goremote_V1_MediaControlService.ServiceProtocol {
+        /// Handle the "PlayPause" method.
+        ///
+        /// - Parameters:
+        ///   - request: A `Goremote_V1_MediaCommandRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A `Goremote_V1_MediaCommandResponse` to respond with.
+        func playPause(
+            request: Goremote_V1_MediaCommandRequest,
+            context: GRPCCore.ServerContext
+        ) async throws -> Goremote_V1_MediaCommandResponse
+
+        /// Handle the "Next" method.
+        ///
+        /// - Parameters:
+        ///   - request: A `Goremote_V1_MediaCommandRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A `Goremote_V1_MediaCommandResponse` to respond with.
+        func next(
+            request: Goremote_V1_MediaCommandRequest,
+            context: GRPCCore.ServerContext
+        ) async throws -> Goremote_V1_MediaCommandResponse
+
+        /// Handle the "Previous" method.
+        ///
+        /// - Parameters:
+        ///   - request: A `Goremote_V1_MediaCommandRequest` message.
+        ///   - context: Context providing information about the RPC.
+        /// - Throws: Any error which occurred during the processing of the request. Thrown errors
+        ///     of type `RPCError` are mapped to appropriate statuses. All other errors are converted
+        ///     to an internal error.
+        /// - Returns: A `Goremote_V1_MediaCommandResponse` to respond with.
+        func previous(
+            request: Goremote_V1_MediaCommandRequest,
+            context: GRPCCore.ServerContext
+        ) async throws -> Goremote_V1_MediaCommandResponse
+    }
+}
+
+// Default implementation of 'registerMethods(with:)'.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService.StreamingServiceProtocol {
+    internal func registerMethods<Transport>(with router: inout GRPCCore.RPCRouter<Transport>) where Transport: GRPCCore.ServerTransport {
+        router.registerHandler(
+            forMethod: Goremote_V1_MediaControlService.Method.PlayPause.descriptor,
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_MediaCommandRequest>(),
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_MediaCommandResponse>(),
+            handler: { request, context in
+                try await self.playPause(
+                    request: request,
+                    context: context
+                )
+            }
+        )
+        router.registerHandler(
+            forMethod: Goremote_V1_MediaControlService.Method.Next.descriptor,
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_MediaCommandRequest>(),
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_MediaCommandResponse>(),
+            handler: { request, context in
+                try await self.next(
+                    request: request,
+                    context: context
+                )
+            }
+        )
+        router.registerHandler(
+            forMethod: Goremote_V1_MediaControlService.Method.Previous.descriptor,
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_MediaCommandRequest>(),
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_MediaCommandResponse>(),
+            handler: { request, context in
+                try await self.previous(
+                    request: request,
+                    context: context
+                )
+            }
+        )
+    }
+}
+
+// Default implementation of streaming methods from 'StreamingServiceProtocol'.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService.ServiceProtocol {
+    internal func playPause(
+        request: GRPCCore.StreamingServerRequest<Goremote_V1_MediaCommandRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_MediaCommandResponse> {
+        let response = try await self.playPause(
+            request: GRPCCore.ServerRequest(stream: request),
+            context: context
+        )
+        return GRPCCore.StreamingServerResponse(single: response)
+    }
+
+    internal func next(
+        request: GRPCCore.StreamingServerRequest<Goremote_V1_MediaCommandRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_MediaCommandResponse> {
+        let response = try await self.next(
+            request: GRPCCore.ServerRequest(stream: request),
+            context: context
+        )
+        return GRPCCore.StreamingServerResponse(single: response)
+    }
+
+    internal func previous(
+        request: GRPCCore.StreamingServerRequest<Goremote_V1_MediaCommandRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.StreamingServerResponse<Goremote_V1_MediaCommandResponse> {
+        let response = try await self.previous(
+            request: GRPCCore.ServerRequest(stream: request),
+            context: context
+        )
+        return GRPCCore.StreamingServerResponse(single: response)
+    }
+}
+
+// Default implementation of methods from 'ServiceProtocol'.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService.SimpleServiceProtocol {
+    internal func playPause(
+        request: GRPCCore.ServerRequest<Goremote_V1_MediaCommandRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse> {
+        return GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse>(
+            message: try await self.playPause(
+                request: request.message,
+                context: context
+            ),
+            metadata: [:]
+        )
+    }
+
+    internal func next(
+        request: GRPCCore.ServerRequest<Goremote_V1_MediaCommandRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse> {
+        return GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse>(
+            message: try await self.next(
+                request: request.message,
+                context: context
+            ),
+            metadata: [:]
+        )
+    }
+
+    internal func previous(
+        request: GRPCCore.ServerRequest<Goremote_V1_MediaCommandRequest>,
+        context: GRPCCore.ServerContext
+    ) async throws -> GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse> {
+        return GRPCCore.ServerResponse<Goremote_V1_MediaCommandResponse>(
+            message: try await self.previous(
+                request: request.message,
+                context: context
+            ),
+            metadata: [:]
+        )
+    }
+}
+
+// MARK: goremote.v1.MediaControlService (client)
+
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService {
+    /// Generated client protocol for the "goremote.v1.MediaControlService" service.
+    ///
+    /// You don't need to implement this protocol directly, use the generated
+    /// implementation, ``Client``.
+    internal protocol ClientProtocol: Sendable {
+        /// Call the "PlayPause" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - serializer: A serializer for `Goremote_V1_MediaCommandRequest` messages.
+        ///   - deserializer: A deserializer for `Goremote_V1_MediaCommandResponse` messages.
+        ///   - options: Options to apply to this RPC.
+        ///   - handleResponse: A closure which handles the response and returns its result to
+        ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+        ///       already finished.
+        /// - Returns: The result of `handleResponse`.
+        func playPause<Result>(
+            request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+            serializer: some GRPCCore.MessageSerializer<Goremote_V1_MediaCommandRequest>,
+            deserializer: some GRPCCore.MessageDeserializer<Goremote_V1_MediaCommandResponse>,
+            options: GRPCCore.CallOptions,
+            onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result
+        ) async throws -> Result where Result: Sendable
+
+        /// Call the "Next" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - serializer: A serializer for `Goremote_V1_MediaCommandRequest` messages.
+        ///   - deserializer: A deserializer for `Goremote_V1_MediaCommandResponse` messages.
+        ///   - options: Options to apply to this RPC.
+        ///   - handleResponse: A closure which handles the response and returns its result to
+        ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+        ///       already finished.
+        /// - Returns: The result of `handleResponse`.
+        func next<Result>(
+            request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+            serializer: some GRPCCore.MessageSerializer<Goremote_V1_MediaCommandRequest>,
+            deserializer: some GRPCCore.MessageDeserializer<Goremote_V1_MediaCommandResponse>,
+            options: GRPCCore.CallOptions,
+            onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result
+        ) async throws -> Result where Result: Sendable
+
+        /// Call the "Previous" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - serializer: A serializer for `Goremote_V1_MediaCommandRequest` messages.
+        ///   - deserializer: A deserializer for `Goremote_V1_MediaCommandResponse` messages.
+        ///   - options: Options to apply to this RPC.
+        ///   - handleResponse: A closure which handles the response and returns its result to
+        ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+        ///       already finished.
+        /// - Returns: The result of `handleResponse`.
+        func previous<Result>(
+            request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+            serializer: some GRPCCore.MessageSerializer<Goremote_V1_MediaCommandRequest>,
+            deserializer: some GRPCCore.MessageDeserializer<Goremote_V1_MediaCommandResponse>,
+            options: GRPCCore.CallOptions,
+            onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result
+        ) async throws -> Result where Result: Sendable
+    }
+
+    /// Generated client for the "goremote.v1.MediaControlService" service.
+    ///
+    /// The ``Client`` provides an implementation of ``ClientProtocol`` which wraps
+    /// a `GRPCCore.GRPCCClient`. The underlying `GRPCClient` provides the long-lived
+    /// means of communication with the remote peer.
+    internal struct Client<Transport>: ClientProtocol where Transport: GRPCCore.ClientTransport {
+        private let client: GRPCCore.GRPCClient<Transport>
+
+        /// Creates a new client wrapping the provided `GRPCCore.GRPCClient`.
+        ///
+        /// - Parameters:
+        ///   - client: A `GRPCCore.GRPCClient` providing a communication channel to the service.
+        internal init(wrapping client: GRPCCore.GRPCClient<Transport>) {
+            self.client = client
+        }
+
+        /// Call the "PlayPause" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - serializer: A serializer for `Goremote_V1_MediaCommandRequest` messages.
+        ///   - deserializer: A deserializer for `Goremote_V1_MediaCommandResponse` messages.
+        ///   - options: Options to apply to this RPC.
+        ///   - handleResponse: A closure which handles the response and returns its result to
+        ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+        ///       already finished.
+        /// - Returns: The result of `handleResponse`.
+        internal func playPause<Result>(
+            request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+            serializer: some GRPCCore.MessageSerializer<Goremote_V1_MediaCommandRequest>,
+            deserializer: some GRPCCore.MessageDeserializer<Goremote_V1_MediaCommandResponse>,
+            options: GRPCCore.CallOptions = .defaults,
+            onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+                try response.message
+            }
+        ) async throws -> Result where Result: Sendable {
+            try await self.client.unary(
+                request: request,
+                descriptor: Goremote_V1_MediaControlService.Method.PlayPause.descriptor,
+                serializer: serializer,
+                deserializer: deserializer,
+                options: options,
+                onResponse: handleResponse
+            )
+        }
+
+        /// Call the "Next" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - serializer: A serializer for `Goremote_V1_MediaCommandRequest` messages.
+        ///   - deserializer: A deserializer for `Goremote_V1_MediaCommandResponse` messages.
+        ///   - options: Options to apply to this RPC.
+        ///   - handleResponse: A closure which handles the response and returns its result to
+        ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+        ///       already finished.
+        /// - Returns: The result of `handleResponse`.
+        internal func next<Result>(
+            request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+            serializer: some GRPCCore.MessageSerializer<Goremote_V1_MediaCommandRequest>,
+            deserializer: some GRPCCore.MessageDeserializer<Goremote_V1_MediaCommandResponse>,
+            options: GRPCCore.CallOptions = .defaults,
+            onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+                try response.message
+            }
+        ) async throws -> Result where Result: Sendable {
+            try await self.client.unary(
+                request: request,
+                descriptor: Goremote_V1_MediaControlService.Method.Next.descriptor,
+                serializer: serializer,
+                deserializer: deserializer,
+                options: options,
+                onResponse: handleResponse
+            )
+        }
+
+        /// Call the "Previous" method.
+        ///
+        /// - Parameters:
+        ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+        ///   - serializer: A serializer for `Goremote_V1_MediaCommandRequest` messages.
+        ///   - deserializer: A deserializer for `Goremote_V1_MediaCommandResponse` messages.
+        ///   - options: Options to apply to this RPC.
+        ///   - handleResponse: A closure which handles the response and returns its result to
+        ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+        ///       already finished.
+        /// - Returns: The result of `handleResponse`.
+        internal func previous<Result>(
+            request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+            serializer: some GRPCCore.MessageSerializer<Goremote_V1_MediaCommandRequest>,
+            deserializer: some GRPCCore.MessageDeserializer<Goremote_V1_MediaCommandResponse>,
+            options: GRPCCore.CallOptions = .defaults,
+            onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+                try response.message
+            }
+        ) async throws -> Result where Result: Sendable {
+            try await self.client.unary(
+                request: request,
+                descriptor: Goremote_V1_MediaControlService.Method.Previous.descriptor,
+                serializer: serializer,
+                deserializer: deserializer,
+                options: options,
+                onResponse: handleResponse
+            )
+        }
+    }
+}
+
+// Helpers providing default arguments to 'ClientProtocol' methods.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService.ClientProtocol {
+    /// Call the "PlayPause" method.
+    ///
+    /// - Parameters:
+    ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+    ///   - options: Options to apply to this RPC.
+    ///   - handleResponse: A closure which handles the response and returns its result to
+    ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+    ///       already finished.
+    /// - Returns: The result of `handleResponse`.
+    internal func playPause<Result>(
+        request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+        options: GRPCCore.CallOptions = .defaults,
+        onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+            try response.message
+        }
+    ) async throws -> Result where Result: Sendable {
+        try await self.playPause(
+            request: request,
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_MediaCommandRequest>(),
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_MediaCommandResponse>(),
+            options: options,
+            onResponse: handleResponse
+        )
+    }
+
+    /// Call the "Next" method.
+    ///
+    /// - Parameters:
+    ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+    ///   - options: Options to apply to this RPC.
+    ///   - handleResponse: A closure which handles the response and returns its result to
+    ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+    ///       already finished.
+    /// - Returns: The result of `handleResponse`.
+    internal func next<Result>(
+        request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+        options: GRPCCore.CallOptions = .defaults,
+        onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+            try response.message
+        }
+    ) async throws -> Result where Result: Sendable {
+        try await self.next(
+            request: request,
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_MediaCommandRequest>(),
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_MediaCommandResponse>(),
+            options: options,
+            onResponse: handleResponse
+        )
+    }
+
+    /// Call the "Previous" method.
+    ///
+    /// - Parameters:
+    ///   - request: A request containing a single `Goremote_V1_MediaCommandRequest` message.
+    ///   - options: Options to apply to this RPC.
+    ///   - handleResponse: A closure which handles the response and returns its result to
+    ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+    ///       already finished.
+    /// - Returns: The result of `handleResponse`.
+    internal func previous<Result>(
+        request: GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>,
+        options: GRPCCore.CallOptions = .defaults,
+        onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+            try response.message
+        }
+    ) async throws -> Result where Result: Sendable {
+        try await self.previous(
+            request: request,
+            serializer: GRPCProtobuf.ProtobufSerializer<Goremote_V1_MediaCommandRequest>(),
+            deserializer: GRPCProtobuf.ProtobufDeserializer<Goremote_V1_MediaCommandResponse>(),
+            options: options,
+            onResponse: handleResponse
+        )
+    }
+}
+
+// Helpers providing sugared APIs for 'ClientProtocol' methods.
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension Goremote_V1_MediaControlService.ClientProtocol {
+    /// Call the "PlayPause" method.
+    ///
+    /// - Parameters:
+    ///   - message: request message to send.
+    ///   - metadata: Additional metadata to send, defaults to empty.
+    ///   - options: Options to apply to this RPC, defaults to `.defaults`.
+    ///   - handleResponse: A closure which handles the response and returns its result to
+    ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+    ///       already finished.
+    /// - Returns: The result of `handleResponse`.
+    internal func playPause<Result>(
+        _ message: Goremote_V1_MediaCommandRequest,
+        metadata: GRPCCore.Metadata = [:],
+        options: GRPCCore.CallOptions = .defaults,
+        onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+            try response.message
+        }
+    ) async throws -> Result where Result: Sendable {
+        let request = GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>(
+            message: message,
+            metadata: metadata
+        )
+        return try await self.playPause(
+            request: request,
+            options: options,
+            onResponse: handleResponse
+        )
+    }
+
+    /// Call the "Next" method.
+    ///
+    /// - Parameters:
+    ///   - message: request message to send.
+    ///   - metadata: Additional metadata to send, defaults to empty.
+    ///   - options: Options to apply to this RPC, defaults to `.defaults`.
+    ///   - handleResponse: A closure which handles the response and returns its result to
+    ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+    ///       already finished.
+    /// - Returns: The result of `handleResponse`.
+    internal func next<Result>(
+        _ message: Goremote_V1_MediaCommandRequest,
+        metadata: GRPCCore.Metadata = [:],
+        options: GRPCCore.CallOptions = .defaults,
+        onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+            try response.message
+        }
+    ) async throws -> Result where Result: Sendable {
+        let request = GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>(
+            message: message,
+            metadata: metadata
+        )
+        return try await self.next(
+            request: request,
+            options: options,
+            onResponse: handleResponse
+        )
+    }
+
+    /// Call the "Previous" method.
+    ///
+    /// - Parameters:
+    ///   - message: request message to send.
+    ///   - metadata: Additional metadata to send, defaults to empty.
+    ///   - options: Options to apply to this RPC, defaults to `.defaults`.
+    ///   - handleResponse: A closure which handles the response and returns its result to
+    ///       the caller. Returning from the closure will cancel the RPC if it hasn't
+    ///       already finished.
+    /// - Returns: The result of `handleResponse`.
+    internal func previous<Result>(
+        _ message: Goremote_V1_MediaCommandRequest,
+        metadata: GRPCCore.Metadata = [:],
+        options: GRPCCore.CallOptions = .defaults,
+        onResponse handleResponse: @Sendable @escaping (GRPCCore.ClientResponse<Goremote_V1_MediaCommandResponse>) async throws -> Result = { response in
+            try response.message
+        }
+    ) async throws -> Result where Result: Sendable {
+        let request = GRPCCore.ClientRequest<Goremote_V1_MediaCommandRequest>(
+            message: message,
+            metadata: metadata
+        )
+        return try await self.previous(
             request: request,
             options: options,
             onResponse: handleResponse
