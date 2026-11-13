@@ -8,7 +8,9 @@ import (
 	"goremote/internal/auth"
 	"goremote/internal/discovery"
 	management "goremote/internal/grpc/management"
+	"goremote/internal/media"
 	"goremote/internal/platform/macos"
+	"goremote/internal/volume"
 	"log"
 	"net"
 	"net/http"
@@ -28,19 +30,34 @@ func main() {
 func run() error {
 	tokenPath, err := macos.AuthTokenPath()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	tokenStore, err := auth.NewTokenStore(tokenPath)
 	if err != nil {
-		log.Fatal("err")
+		return err
 	}
 
 	pairingManager := auth.NewPairingManager()
 
+	mediaController, err := media.NewRemoteMediaController("127.0.0.1:8092")
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := mediaController.Close(); err != nil {
+			log.Printf("Failed to close media gRPC client: %v", err)
+		} else {
+			log.Println("Media gRPC client connection closed")
+		}
+	}()
+
+	volumeController := volume.NewMacOSVolumeController()
+
 	// REST API
 	httpServer := &http.Server{
 		Addr:              ":8090",
-		Handler:           api.HandleRoutes(tokenStore, pairingManager),
+		Handler:           api.HandleRoutes(tokenStore, pairingManager, mediaController, volumeController),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

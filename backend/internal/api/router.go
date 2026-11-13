@@ -5,23 +5,8 @@ import (
 	"goremote/internal/auth"
 	"goremote/internal/media"
 	"goremote/internal/volume"
-	"log"
 	"net/http"
 )
-
-func newMediaController() media.Controller {
-	controller, err := media.NewRemoteMediaController(
-		"127.0.0.1:8092",
-	)
-	if err != nil {
-		log.Fatalf("failed to create media controller: %v", err)
-	}
-
-	return controller
-}
-
-var mediaController media.Controller = newMediaController()
-var volumeController volume.Controller = volume.NewMacOSVolumeController()
 
 func getHealth(w http.ResponseWriter, req *http.Request) {
 	status := struct {
@@ -45,106 +30,123 @@ func getStatus(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func togglePlayPause(w http.ResponseWriter, req *http.Request) {
-	if err := mediaController.PlayPause(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+func togglePlayPause(controller media.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		if err := controller.PlayPause(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{Status: "ok"})
+		json.NewEncoder(w).Encode(struct {
+			Status string `json:"status"`
+		}{Status: "ok"})
+	}
 }
 
-func mediaNext(w http.ResponseWriter, req *http.Request) {
-	if err := mediaController.Next(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+func mediaNext(controller media.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		if err := controller.Next(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{Status: "ok"})
+		json.NewEncoder(w).Encode(struct {
+			Status string `json:"status"`
+		}{Status: "ok"})
+	}
 }
 
-func mediaPrevious(w http.ResponseWriter, req *http.Request) {
-	if err := mediaController.Previous(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+func mediaPrevious(controller media.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		if err := controller.Previous(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{Status: "ok"})
+		json.NewEncoder(w).Encode(struct {
+			Status string `json:"status"`
+		}{Status: "ok"})
+	}
 }
 
-func getVolume(w http.ResponseWriter, req *http.Request) {
-	status := struct {
-		Volume int  `json:"volume"`
-		Muted  bool `json:"muted"`
-	}{}
+func getVolume(controller volume.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		status := struct {
+			Volume int  `json:"volume"`
+			Muted  bool `json:"muted"`
+		}{}
 
-	volume, muted, err := volumeController.Get()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		volume, muted, err := controller.Get()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Volume
+		status.Volume = volume
+		status.Muted = muted
+
+		json.NewEncoder(w).Encode(status)
 	}
-
-	// Volume
-	status.Volume = volume
-	status.Muted = muted
-
-	json.NewEncoder(w).Encode(status)
 }
 
-func setVolume(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, 64)
+func setVolume(controller volume.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 64)
 
-	var req struct {
-		Level int `json:"level"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "Invalid JSON structure", http.StatusBadRequest)
-		return
-	}
+		var req struct {
+			Level int `json:"level"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			http.Error(w, "Invalid JSON structure", http.StatusBadRequest)
+			return
+		}
 
-	levelValue := req.Level
-	if levelValue < 0 || levelValue > 100 {
-		http.Error(w, "volume level must be between 0 and 100", http.StatusBadRequest)
-		return
-	}
+		levelValue := req.Level
+		if levelValue < 0 || levelValue > 100 {
+			http.Error(w, "volume level must be between 0 and 100", http.StatusBadRequest)
+			return
+		}
 
-	err = volumeController.Set(levelValue)
-	if err != nil {
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
-	}
+		err = controller.Set(levelValue)
+		if err != nil {
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
 
-	json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{Status: "ok"})
+		json.NewEncoder(w).Encode(struct {
+			Status string `json:"status"`
+		}{Status: "ok"})
+	}
 }
 
-func toggleMute(w http.ResponseWriter, r *http.Request) {
-	_, muted, err := volumeController.Get()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+func toggleMute(controller volume.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, muted, err := controller.Get()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	err = volumeController.SetMuted(!muted)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		err = controller.SetMuted(!muted)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{Status: "ok"})
+		json.NewEncoder(w).Encode(struct {
+			Status string `json:"status"`
+		}{Status: "ok"})
+	}
 }
 
-func HandleRoutes(tokenStore *auth.TokenStore, pairingManager *auth.MemoryPairingManager) http.Handler {
+func HandleRoutes(
+	tokenStore *auth.TokenStore,
+	pairingManager *auth.MemoryPairingManager,
+	mediaController media.Controller,
+	volumeController volume.Controller,
+) http.Handler {
 	mux := http.NewServeMux()
 
 	requireAuth := auth.RequireAuth(tokenStore)
@@ -159,14 +161,14 @@ func HandleRoutes(tokenStore *auth.TokenStore, pairingManager *auth.MemoryPairin
 	mux.Handle("GET /status", requireAuth(JsonContentTypeMiddleware(getStatus)))
 
 	// Media
-	mux.Handle("POST /media/play-pause", requireAuth((JsonContentTypeMiddleware(togglePlayPause))))
-	mux.Handle("POST /media/next", requireAuth((JsonContentTypeMiddleware(mediaNext))))
-	mux.Handle("POST /media/previous", requireAuth((JsonContentTypeMiddleware(mediaPrevious))))
+	mux.Handle("POST /media/play-pause", requireAuth((JsonContentTypeMiddleware(togglePlayPause(mediaController)))))
+	mux.Handle("POST /media/next", requireAuth((JsonContentTypeMiddleware(mediaNext(mediaController)))))
+	mux.Handle("POST /media/previous", requireAuth((JsonContentTypeMiddleware(mediaPrevious(mediaController)))))
 
 	// Volume
-	mux.Handle("GET /volume", requireAuth(JsonContentTypeMiddleware(getVolume)))
-	mux.Handle("PUT /volume", requireAuth(JsonContentTypeMiddleware(setVolume)))
-	mux.Handle("POST /volume/mute", requireAuth(JsonContentTypeMiddleware(toggleMute)))
+	mux.Handle("GET /volume", requireAuth(JsonContentTypeMiddleware(getVolume(volumeController))))
+	mux.Handle("PUT /volume", requireAuth(JsonContentTypeMiddleware(setVolume(volumeController))))
+	mux.Handle("POST /volume/mute", requireAuth(JsonContentTypeMiddleware(toggleMute(volumeController))))
 
 	return mux
 }
